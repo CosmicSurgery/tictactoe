@@ -2,7 +2,7 @@ import random
 
 class NaiveAI:
     def __init__(self):
-        pass
+        self.name = 'NaiveAI'
 
     def get_move(self, board):
         # Generate a random move
@@ -14,7 +14,7 @@ class NaiveAI:
 
 class ComplexAI:
     def __init__(self):
-        pass
+        self.name = 'ComplexAI'
 
     def get_move(self, board):
         # Generate a random move

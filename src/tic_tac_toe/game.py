@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import sys
+import sqlite3
 
 class TicTacToe:
     def __init__(self, x_status, o_status): # x_status/o_status are either 'human' or 'ai'
@@ -21,6 +22,11 @@ class TicTacToe:
 
     def check_draw(self):
         return all(cell != 0 for row in self.board for cell in row)
+    
+    def reset_board(self):
+        for i in range(3):
+            for j in range(3):
+                self.board[i][j] = 0
 
 class TicTacToeGUI:
     def __init__(self, master, x_status, o_status, ai_model):
@@ -64,8 +70,9 @@ class TicTacToeGUI:
                 self.reset_board()
             else:
                 self.current_player_label.config(text=f"Current Player: {player_symbol}")
-                (row, col) = self.ai_model.get_move(self.game.board)
-                self.move_validation(row,col,'ai')
+                if self.ai_model is not None:
+                    (row, col) = self.ai_model.get_move(self.game.board)
+                    self.move_validation(row,col,'ai')
             
 
     def reset_board(self):
@@ -87,8 +94,72 @@ def main(x_status, o_status, ai_class_name=None):
     gui = TicTacToeGUI(root, x_status, o_status, ai_model)
     root.mainloop()
 
+def ai_sim(ai_model_1, ai_model_2, round_lim):
+    ai_model_1, ai_model_2 = getattr(__import__('ai'), ai_model_1), getattr(__import__('ai'), ai_model_2)
+    round_lim = int(round_lim)
+    game = TicTacToe('ai','ai')
+
+    round = 0
+    
+    while(round < round_lim):
+        turn=0
+        while(True):
+            move = ai_model_1.get_move(ai_model_1, game.board)
+            if(move is not None):
+                game.make_move(*move)
+                turn+=1
+            if game.check_win():
+                break
+            elif game.check_draw():
+                break
+            move = ai_model_2.get_move(ai_model_2, game.board)
+            if(move is not None):
+                game.make_move(*move)
+                turn+=1
+            if game.check_win():
+                break
+            elif game.check_draw():
+                break
+        print(round,end='\r')
+        round+=1
+    messagebox.showinfo("Simulation Completed!", f"Final Score:")
+
+def record_result(winner, loser, turns):
+    # Connect to the database for AI model 1 or create if it doesn't exist
+    db_name_1 = f"{winner.name}.db"
+    conn_1 = sqlite3.connect(db_name_1)
+    c_1 = conn_1.cursor()
+
+    # Create table if it doesn't exist
+    c_1.execute('''CREATE TABLE IF NOT EXISTS results (wins INTEGER, turns INTEGER)''')
+
+    # Insert game result into the database for AI model 1
+    c_1.execute('''INSERT INTO results (wins, turns) VALUES (?, ?)''', (1, turns))  # Assuming AI model 1 won
+
+    # Commit changes and close connection
+    conn_1.commit()
+    conn_1.close()
+
+    # Connect to the database for AI model 2 or create if it doesn't exist
+    db_name_2 = f"{loser.name}.db"
+    conn_2 = sqlite3.connect(db_name_2)
+    c_2 = conn_2.cursor()
+
+    # Create table if it doesn't exist
+    c_2.execute('''CREATE TABLE IF NOT EXISTS results (wins INTEGER, turns INTEGER)''')
+
+    # Insert game result into the database for AI model 2
+    c_2.execute('''INSERT INTO results (wins, turns) VALUES (?, ?)''', (0, turns))  # Assuming AI model 2 lost
+
+    # Commit changes and close connection
+    conn_2.commit()
+    conn_2.close()
+
+
 if __name__ == "__main__":
-    if len(sys.argv) >= 4:
+    if len(sys.argv) >= 5: # this means ai vs ai!
+        ai_sim(sys.argv[3], sys.argv[4], sys.argv[5])
+    elif len(sys.argv) >= 4:
         main(sys.argv[1], sys.argv[2], sys.argv[3])
     elif sys.argv[1] == 'human' and sys.argv[2] == 'human' and len(sys.argv) >=3:
         main(sys.argv[1], sys.argv[2])

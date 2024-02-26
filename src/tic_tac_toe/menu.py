@@ -96,7 +96,58 @@ class TicTacToeMenu(tk.Tk):
         play_button.grid(row=2, columnspan=2, pady=20)
 
     def start_ai(self):
-        pass
+        # Create a new window for single player setup
+        ai_setup_window = tk.Toplevel(self)
+        ai_setup_window.title("AI Sim Setup")
+        ai_setup_window.geometry("600x300")
+
+        from ai import NaiveAI, ComplexAI
+
+        ai_class_mapping = {
+            "NaiveAI": NaiveAI,
+            "ComplexAI": ComplexAI
+        }
+
+        # Label for AI type selection
+        ai_label_1 = tk.Label(ai_setup_window, text="X: Choose AI Type:", font=("Arial", 16))
+        ai_label_1.grid(row=0, column=0, padx=10, pady=10)
+
+        # Dropdown for AI type selection
+        ai_var_1 = tk.StringVar()
+        ai_dropdown_1 = ttk.Combobox(ai_setup_window, textvariable=ai_var_1, values=list(ai_class_mapping.keys()), state="readonly", font=("Arial", 14))
+        ai_dropdown_1.current(0)
+        ai_dropdown_1.grid(row=0, column=1, padx=10, pady=10)
+
+        # Dropdown for AI type selection
+        ai_var_2 = tk.StringVar()
+        ai_dropdown_2 = ttk.Combobox(ai_setup_window, textvariable=ai_var_2, values=list(ai_class_mapping.keys()), state="readonly", font=("Arial", 14))
+        ai_dropdown_2.current(0)
+        ai_dropdown_2.grid(row=1, column=1, padx=10, pady=10)
+
+        # Label for AI type selection
+        ai_label_2 = tk.Label(ai_setup_window, text="O: Choose AI Type:", font=("Arial", 16))
+        ai_label_2.grid(row=1, column=0, padx=10, pady=10)
+
+        def start_sim():
+            ai_model_1 = ai_var_1.get()
+            ai_model_2 = ai_var_2.get()
+
+            # Get the directory path of the current script
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            # Construct the full path to game.py
+            game_script = os.path.join(script_dir, "game.py")
+            # Run game.py using subprocess with additional arguments
+            # Determine the player types based on the user's choices
+            x_status = "ai"
+            o_status = "ai"
+
+            # Run game.py using subprocess with additional arguments
+            subprocess.run(["python", game_script, x_status, o_status, ai_model_1, ai_model_2, '2'])
+            ai_setup_window.destroy()
+
+        # Button to start the game
+        play_button = tk.Button(ai_setup_window, text="Start sim", command=start_sim, width=20, height=3, font=("Arial", 16))
+        play_button.grid(row=2, columnspan=2, pady=20)
 
     def start_stats(self):
         pass
