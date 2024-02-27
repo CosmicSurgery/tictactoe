@@ -12,9 +12,9 @@ class NaiveAI:
         else:
             return None  # No valid moves available (board is full or already won)
 
-class ComplexAI:
+class milesbot:
     def __init__(self):
-        self.name = 'ComplexAI'
+        self.name = 'milesbot'
 
     def get_move(self, board):
         # Generate a random move

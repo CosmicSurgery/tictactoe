@@ -94,8 +94,13 @@ def main(x_status, o_status, ai_class_name=None):
     gui = TicTacToeGUI(root, x_status, o_status, ai_model)
     root.mainloop()
 
-def ai_sim(ai_model_1, ai_model_2, round_lim):
-    ai_model_1, ai_model_2 = getattr(__import__('ai'), ai_model_1), getattr(__import__('ai'), ai_model_2)
+def ai_sim(ai_class_1, ai_class_2, round_lim):
+    ai_class_1, ai_class_2 = getattr(__import__('ai'), ai_class_1), getattr(__import__('ai'), ai_class_2)
+    ai_model_1, ai_model_2 = ai_class_1(), ai_class_2()
+    ai_model_1_wins=0
+    ai_model_2_wins=0
+    draws = 0
+
     round_lim = int(round_lim)
     game = TicTacToe('ai','ai')
 
@@ -104,56 +109,65 @@ def ai_sim(ai_model_1, ai_model_2, round_lim):
     while(round < round_lim):
         turn=0
         while(True):
-            move = ai_model_1.get_move(ai_model_1, game.board)
+            game.current_player = 'X'
+            move = ai_model_1.get_move(game.board)
             if(move is not None):
                 game.make_move(*move)
                 turn+=1
+            else:
+                print('BAD MOVE')
             if game.check_win():
+                record_result(ai_model_1, ai_model_2, ['W','L'], turn)
+                ai_model_1_wins+=1
                 break
             elif game.check_draw():
+                record_result(ai_model_1, ai_model_2, ['D','D'], turn)
+                draws+=1
                 break
-            move = ai_model_2.get_move(ai_model_2, game.board)
-            if(move is not None):
-                game.make_move(*move)
-                turn+=1
-            if game.check_win():
-                break
-            elif game.check_draw():
-                break
-        print(round,end='\r')
-        round+=1
-    messagebox.showinfo("Simulation Completed!", f"Final Score:")
 
-def record_result(winner, loser, turns):
+            game.current_player = 'O'
+            move = ai_model_2.get_move(game.board)
+            if(move is not None):
+                game.make_move(*move)
+                turn+=1
+            else:
+                print('BAD MOVE')
+            if game.check_win():
+                record_result(ai_model_1, ai_model_2, ['L','W'], turn)
+                ai_model_2_wins+=1
+                break
+            elif game.check_draw():
+                record_result(ai_model_1, ai_model_2, ['D','D'], turn)
+                draws+=1
+                break
+        print(game.board)
+        game.reset_board()
+        print(round)
+        round+=1
+    messagebox.showinfo("Simulation Completed!", f"Final Score:{ai_model_1_wins} - {draws} - {ai_model_2_wins}")
+
+def record_result(ai_model_1, ai_model_2, result, turns): # need to add in if they were 'X' or 'O'
+    db_path_1 = f"results/{ai_model_1.name}.db"
+    db_path_2 = f"results/{ai_model_2.name}.db"
+
     # Connect to the database for AI model 1 or create if it doesn't exist
-    db_name_1 = f"{winner.name}.db"
-    conn_1 = sqlite3.connect(db_name_1)
-    c_1 = conn_1.cursor()
+    conn_1, conn_2 = sqlite3.connect(db_path_1), sqlite3.connect(db_path_2)
+    c_1, c_2 = conn_1.cursor(), conn_2.cursor()
 
     # Create table if it doesn't exist
-    c_1.execute('''CREATE TABLE IF NOT EXISTS results (wins INTEGER, turns INTEGER)''')
+    c_1.execute('''CREATE TABLE IF NOT EXISTS results (result STRING, type STRING, turns INTEGER)''')
+    c_2.execute('''CREATE TABLE IF NOT EXISTS results (result STRING, type STRING, turns INTEGER)''')
 
     # Insert game result into the database for AI model 1
-    c_1.execute('''INSERT INTO results (wins, turns) VALUES (?, ?)''', (1, turns))  # Assuming AI model 1 won
+    c_1.execute('''INSERT INTO results (result, type, turns) VALUES (?, ?, ?)''', (result[0], 'X', turns))  # Assuming AI model 1 won
+    c_2.execute('''INSERT INTO results (result, type, turns) VALUES (?, ?, ?)''', (result[1], 'X', turns))  # Assuming AI model 1 won
 
     # Commit changes and close connection
     conn_1.commit()
-    conn_1.close()
-
-    # Connect to the database for AI model 2 or create if it doesn't exist
-    db_name_2 = f"{loser.name}.db"
-    conn_2 = sqlite3.connect(db_name_2)
-    c_2 = conn_2.cursor()
-
-    # Create table if it doesn't exist
-    c_2.execute('''CREATE TABLE IF NOT EXISTS results (wins INTEGER, turns INTEGER)''')
-
-    # Insert game result into the database for AI model 2
-    c_2.execute('''INSERT INTO results (wins, turns) VALUES (?, ?)''', (0, turns))  # Assuming AI model 2 lost
-
-    # Commit changes and close connection
+    conn_1.close()    # Commit changes and close connection
     conn_2.commit()
     conn_2.close()
+
 
 
 if __name__ == "__main__":

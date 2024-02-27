@@ -61,11 +61,11 @@ class TicTacToeMenu(tk.Tk):
         ai_label = tk.Label(single_player_setup_window, text="Choose AI Type:", font=("Arial", 16))
         ai_label.grid(row=1, column=0, padx=10, pady=10)
 
-        from ai import NaiveAI, ComplexAI
+        from ai import NaiveAI, milesbot
 
         ai_class_mapping = {
             "NaiveAI": NaiveAI,
-            "Complex AI": ComplexAI
+            "milesbot AI": milesbot
         }
 
         # Dropdown for AI type selection
@@ -105,7 +105,7 @@ class TicTacToeMenu(tk.Tk):
 
         ai_class_mapping = {
             "NaiveAI": NaiveAI,
-            "ComplexAI": ComplexAI
+            "milesbot": milesbot
         }
 
         # Label for AI type selection
@@ -121,7 +121,7 @@ class TicTacToeMenu(tk.Tk):
         # Dropdown for AI type selection
         ai_var_2 = tk.StringVar()
         ai_dropdown_2 = ttk.Combobox(ai_setup_window, textvariable=ai_var_2, values=list(ai_class_mapping.keys()), state="readonly", font=("Arial", 14))
-        ai_dropdown_2.current(0)
+        ai_dropdown_2.current(1)
         ai_dropdown_2.grid(row=1, column=1, padx=10, pady=10)
 
         # Label for AI type selection
@@ -142,7 +142,7 @@ class TicTacToeMenu(tk.Tk):
             o_status = "ai"
 
             # Run game.py using subprocess with additional arguments
-            subprocess.run(["python", game_script, x_status, o_status, ai_model_1, ai_model_2, '2'])
+            subprocess.run(["python", game_script, x_status, o_status, ai_model_1, ai_model_2, '20'])
             ai_setup_window.destroy()
 
         # Button to start the game
