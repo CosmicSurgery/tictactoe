@@ -29,17 +29,22 @@ class TicTacToe:
                 self.board[i][j] = 0
 
 class TicTacToeGUI:
-    def __init__(self, master, x_status, o_status, ai_model):
+    def __init__(self, master, x_status, o_status, ai_class):
         self.master = master
         self.master.title("Tic Tac Toe")
         self.game = TicTacToe(x_status, o_status)
         self.create_board_buttons()
         self.current_player_label = tk.Label(master, text=f"Current Player: {self.game.current_player}", font=("Arial", 12))
         self.current_player_label.grid(row=3, column=0, columnspan=3)
-        self.ai_model = ai_model
-        if self.game.player_status['X'] == 'ai':
+        if self.game.player_status['O'] == 'ai':
+            self.ai_model = ai_class('O')
+        elif self.game.player_status['X'] == 'ai':
+            self.ai_model = ai_class('X')
             (row, col) = self.ai_model.get_move(self.game.board)
             self.move_validation(row,col,'ai')
+        else:
+            self.ai_model = None
+
 
     def create_board_buttons(self):
         self.buttons = []
@@ -89,14 +94,13 @@ def main(x_status, o_status, ai_class_name=None):
         # Import the AI class dynamically
         ai_class = getattr(__import__('ai'), ai_class_name)
         # Instantiate the AI class
-        ai_model = ai_class()
     root = tk.Tk()
-    gui = TicTacToeGUI(root, x_status, o_status, ai_model)
+    gui = TicTacToeGUI(root, x_status, o_status, ai_class_name)
     root.mainloop()
 
 def ai_sim(ai_class_1, ai_class_2, round_lim):
     ai_class_1, ai_class_2 = getattr(__import__('ai'), ai_class_1), getattr(__import__('ai'), ai_class_2)
-    ai_model_1, ai_model_2 = ai_class_1(), ai_class_2()
+    ai_model_1, ai_model_2 = ai_class_1('X'), ai_class_2('O')
     ai_model_1_wins=0
     ai_model_2_wins=0
     draws = 0

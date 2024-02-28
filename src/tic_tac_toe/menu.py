@@ -101,7 +101,7 @@ class TicTacToeMenu(tk.Tk):
         ai_setup_window.title("AI Sim Setup")
         ai_setup_window.geometry("600x300")
 
-        from ai import NaiveAI, ComplexAI
+        from ai import NaiveAI, milesbot
 
         ai_class_mapping = {
             "NaiveAI": NaiveAI,
