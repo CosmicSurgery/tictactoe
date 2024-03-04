@@ -89,13 +89,13 @@ class TicTacToeGUI:
         self.current_player_label.config(text=f"Current Player: {self.game.current_player}")
 
 def main(x_status, o_status, ai_class_name=None):
-    ai_model = None
+    ai_class = None
     if ai_class_name is not None:
         # Import the AI class dynamically
         ai_class = getattr(__import__('ai'), ai_class_name)
         # Instantiate the AI class
     root = tk.Tk()
-    gui = TicTacToeGUI(root, x_status, o_status, ai_class_name)
+    gui = TicTacToeGUI(root, x_status, o_status, ai_class)
     root.mainloop()
 
 def ai_sim(ai_class_1, ai_class_2, round_lim):
@@ -123,10 +123,14 @@ def ai_sim(ai_class_1, ai_class_2, round_lim):
             if game.check_win():
                 record_result(ai_model_1, ai_model_2, ['W','L'], turn)
                 ai_model_1_wins+=1
+                ai_model_1.update_reward('W')
+                ai_model_2.update_reward('L')
                 break
             elif game.check_draw():
                 record_result(ai_model_1, ai_model_2, ['D','D'], turn)
                 draws+=1
+                ai_model_1.update_reward('D')
+                ai_model_2.update_reward('D')
                 break
 
             game.current_player = 'O'
@@ -139,10 +143,14 @@ def ai_sim(ai_class_1, ai_class_2, round_lim):
             if game.check_win():
                 record_result(ai_model_1, ai_model_2, ['L','W'], turn)
                 ai_model_2_wins+=1
+                ai_model_1.update_reward('L')
+                ai_model_2.update_reward('W')
                 break
             elif game.check_draw():
                 record_result(ai_model_1, ai_model_2, ['D','D'], turn)
                 draws+=1
+                ai_model_1.update_reward('D')
+                ai_model_2.update_reward('D')
                 break
         print(game.board)
         game.reset_board()
@@ -171,7 +179,6 @@ def record_result(ai_model_1, ai_model_2, result, turns): # need to add in if th
     conn_1.close()    # Commit changes and close connection
     conn_2.commit()
     conn_2.close()
-
 
 
 if __name__ == "__main__":
