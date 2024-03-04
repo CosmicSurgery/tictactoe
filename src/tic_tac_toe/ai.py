@@ -50,14 +50,14 @@ class milesbot:
                     try:
                         cell_values[i] += self.expected_reward[str(state)]
                     except:
-                        self.expected_reward[str(state)] = state
+                        self.expected_reward[str(state)] = [0,0,0]
             
             move = empty_cells[np.argmax(cell_values)]
         else:
             move = None  # No valid moves available (board is full or already won)
         self.boards.append(copy.deepcopy(board))
-        print(board)
-        print(move)
+        # print(board)
+        # print(move)
         self.moves.append(move)
 
         return move
@@ -73,22 +73,22 @@ class milesbot:
         self.boards.reverse()
         for i, move in enumerate(self.moves):
             vec = self.get_state(*move, self.boards[i])
-            print(move[0])
-            print(self.expected_reward[str(vec[2])])
-            self.expected_reward[str(vec[0])][move[0]] += (result/(i+1))
-            self.expected_reward[str(vec[1])][move[1]] += (result/(i+1))
+            print(move)
+            print(vec)
+            print(self.boards[i])
+            # print(self.expected_reward[str(vec[2])])
+            self.expected_reward[str(vec[0])][move[1]] += (result/(i+1))
+            self.expected_reward[str(vec[1])][move[0]] += (result/(i+1))
             if len(vec)==2:
                 # then I know it's just a row and a column
                 pass
             elif len(vec)==3:
                 # then I know it's a corner
-                self.expected_reward[str(vec[2])][move[0]] += (result/(i+1))
+                self.expected_reward[str(vec[2])][move[1]] += (result/(i+1))
             else:
-                print(move[0])
-                print(str(vec[2]))
-                print(self.expected_reward[str(vec[2])])
-                self.expected_reward[str(vec[2])][move[0]] += (result/(i+1))
-                self.expected_reward[str(vec[3])][move[0]] += (result/(i+1))
+                self.expected_reward[str(vec[2])][move[1]] += (result/(i+1))
+                self.expected_reward[str(vec[3])][move[1]] += (result/(i+1))
+        print(self.expected_reward)
         
         pickle.dump(self.expected_reward, open(self.name + '_expected_reward.p', 'wb'))
     
@@ -110,12 +110,12 @@ class milesbot:
             anti_diagonal_values = [1 if board[i][2-i] == self.player else 2 if board[i][2-i] != 0 else board[i][2-i] for i in range(3)]
 
 
-        if diagonal_values == [] and anti_diagonal_values == []:
+        if diagonal_values != [] and anti_diagonal_values != []:
             return row_values, col_values, diagonal_values, anti_diagonal_values
-        elif diagonal_values == []:
-            return row_values, col_values, diagonal_values
-        elif anti_diagonal_values == []:
-            return row_values, col_values, anti_diagonal_values
-        else:
+        elif diagonal_values == [] and anti_diagonal_values == []:
             return row_values, col_values
+        elif diagonal_values != []:
+            return row_values, col_values, diagonal_values
+        elif anti_diagonal_values != []:
+            return row_values, col_values, anti_diagonal_values
 
