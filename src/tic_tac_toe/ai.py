@@ -39,16 +39,19 @@ class milesbot:
 
     def get_move(self, board):
         # Generate a random move
-
+        print('DEBUG!!!!!!!!!!!!!!!!')
         empty_cells = [(row, col) for row in range(3) for col in range(3) if board[row][col] == 0]
 
         
         if empty_cells:
             cell_values = np.zeros(len(empty_cells))
             for i,cell in enumerate(empty_cells):
-                for state in self.get_state(*cell, board):
+                for j, state in enumerate(self.get_state(*cell, board)):
                     try:
-                        cell_values[i] += self.expected_reward[str(state)]
+                        if j == 1:
+                            cell_values[i] += self.expected_reward[str(state)][cell[0]]
+                        else:
+                            cell_values[i] += self.expected_reward[str(state)][cell[1]]
                     except:
                         self.expected_reward[str(state)] = [0,0,0]
             
@@ -88,7 +91,7 @@ class milesbot:
             else:
                 self.expected_reward[str(vec[2])][move[1]] += (result/(i+1))
                 self.expected_reward[str(vec[3])][move[1]] += (result/(i+1))
-        print(self.expected_reward)
+            print(self.expected_reward)
         
         pickle.dump(self.expected_reward, open(self.name + '_expected_reward.p', 'wb'))
     
@@ -107,7 +110,7 @@ class milesbot:
         # Also get the anti-diagonal if the square is in the center
         anti_diagonal_values = []
         if row + col == 2:
-            anti_diagonal_values = [1 if board[i][2-i] == self.player else 2 if board[i][2-i] != 0 else board[i][2-i] for i in range(3)]
+            anti_diagonal_values = [1 if board[2-i][i] == self.player else 2 if board[2-i][i] != 0 else board[2-i][i] for i in range(3)]
 
 
         if diagonal_values != [] and anti_diagonal_values != []:

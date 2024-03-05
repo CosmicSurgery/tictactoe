@@ -65,7 +65,7 @@ class TicTacToeMenu(tk.Tk):
 
         ai_class_mapping = {
             "NaiveAI": NaiveAI,
-            "milesbot AI": milesbot
+            "milesbot": milesbot
         }
 
         # Dropdown for AI type selection
@@ -142,7 +142,7 @@ class TicTacToeMenu(tk.Tk):
             o_status = "ai"
 
             # Run game.py using subprocess with additional arguments
-            subprocess.run(["python", game_script, x_status, o_status, ai_model_1, ai_model_2, '1'])
+            subprocess.run(["python", game_script, x_status, o_status, ai_model_1, ai_model_2, '20'])
             ai_setup_window.destroy()
 
         # Button to start the game
