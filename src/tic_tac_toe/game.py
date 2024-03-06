@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 import sys
 import sqlite3
@@ -87,6 +88,9 @@ class TicTacToeGUI:
                 self.game.board[i][j] = 0
         self.game.current_player = 'X'
         self.current_player_label.config(text=f"Current Player: {self.game.current_player}")
+        if self.ai_model.player == 'X':
+            (row, col) = self.ai_model.get_move(self.game.board)
+            self.move_validation(row,col,'ai')
 
 def main(x_status, o_status, ai_class_name=None):
     ai_class = None
@@ -107,8 +111,15 @@ def ai_sim(ai_class_1, ai_class_2, round_lim):
 
     round_lim = int(round_lim)
     game = TicTacToe('ai','ai')
-
     round = 0
+
+    root = tk.Tk()
+    root.title("Progress Bar")
+    progress = ttk.Progressbar(root, orient="horizontal", length=300, mode="determinate")
+    progress.pack(pady=10)
+
+    # Define the maximum value for the progress bar
+    progress["maximum"] = round_lim
     
     while(round < round_lim):
         turn=0
@@ -152,17 +163,23 @@ def ai_sim(ai_class_1, ai_class_2, round_lim):
                 ai_model_1.update_reward('D')
                 ai_model_2.update_reward('D')
                 break
-        print(game.board)
         game.reset_board()
-        print(round)
         round+=1
+    
+        # Update the progress bar
+        progress["value"] = round
+        root.update_idletasks()  # Update the GUI to reflect the changes
+        root.update()  # Process events to update the GUI
+
+    root.destroy()  # Close the window when the loop completes
+
     messagebox.showinfo("Simulation Completed!", f"Final Score:{ai_model_1_wins} - {draws} - {ai_model_2_wins}")
 
 def record_result(ai_model_1, ai_model_2, result, turns): # need to add in if they were 'X' or 'O'
     db_path_1 = f"results/{ai_model_1.name}.db"
     db_path_2 = f"results/{ai_model_2.name}.db"
 
-    # Connect to the database for AI model 1 or create if it doesn't exist
+    # Connect to the database for AI model 1 and 2 or create if it doesn't exist
     conn_1, conn_2 = sqlite3.connect(db_path_1), sqlite3.connect(db_path_2)
     c_1, c_2 = conn_1.cursor(), conn_2.cursor()
 
@@ -170,9 +187,9 @@ def record_result(ai_model_1, ai_model_2, result, turns): # need to add in if th
     c_1.execute('''CREATE TABLE IF NOT EXISTS results (result STRING, type STRING, turns INTEGER)''')
     c_2.execute('''CREATE TABLE IF NOT EXISTS results (result STRING, type STRING, turns INTEGER)''')
 
-    # Insert game result into the database for AI model 1
-    c_1.execute('''INSERT INTO results (result, type, turns) VALUES (?, ?, ?)''', (result[0], 'X', turns))  # Assuming AI model 1 won
-    c_2.execute('''INSERT INTO results (result, type, turns) VALUES (?, ?, ?)''', (result[1], 'X', turns))  # Assuming AI model 1 won
+    # Insert game result into the database for AI model 1 and 2
+    c_1.execute('''INSERT INTO results (result, type, turns) VALUES (?, ?, ?)''', (result[0], 'X', turns)) 
+    c_2.execute('''INSERT INTO results (result, type, turns) VALUES (?, ?, ?)''', (result[1], 'O', turns))  
 
     # Commit changes and close connection
     conn_1.commit()

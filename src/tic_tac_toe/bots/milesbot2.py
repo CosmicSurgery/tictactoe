@@ -4,28 +4,13 @@ import os
 import numpy as np
 import copy
 
-class NaiveAI:
-    def __init__(self, player):
-        self.name = 'NaiveAI'
-        self.expected_reward = {}
-        self.moves = []
-        self.player = player
 
-    def get_move(self, board):
-        # Generate a random move
-        empty_cells = [(row, col) for row in range(3) for col in range(3) if board[row][col] == 0]
-        if empty_cells:
-            return random.choice(empty_cells)
-        else:
-            return None  # No valid moves available (board is full or already won)
-    
-    def update_reward(self, result):
-        pass
 
 class milesbot:
     def __init__(self, player):
-        self.name = 'milesbot'
+        self.name = 'milesbot2'
         self.GAMMA = 100
+        self.alpha = 0.1
         self.expected_reward = {}
         self.player = player
         self.states = []
@@ -35,11 +20,9 @@ class milesbot:
             self.expected_reward = pickle.load(open(self.name + '_expected_reward.p','rb')) # expected_reward = pickle.load(open('milesbot_expected_reward.p','rb'))
         except:
             print('cant find')
-            self.expected_reward = {'k':100}
 
     def get_move(self, board):
         # Generate a random move
-        print('DEBUG!!!!!!!!!!!!!!!!')
         empty_cells = [(row, col) for row in range(3) for col in range(3) if board[row][col] == 0]
 
         
@@ -59,8 +42,6 @@ class milesbot:
         else:
             move = None  # No valid moves available (board is full or already won)
         self.boards.append(copy.deepcopy(board))
-        # print(board)
-        # print(move)
         self.moves.append(move)
 
         return move
@@ -75,23 +56,20 @@ class milesbot:
         self.moves.reverse()
         self.boards.reverse()
         for i, move in enumerate(self.moves):
+            true_alpha = (self.alpha/(i+1))
             vec = self.get_state(*move, self.boards[i])
-            print(move)
-            print(vec)
-            print(self.boards[i])
             # print(self.expected_reward[str(vec[2])])
-            self.expected_reward[str(vec[0])][move[1]] += (result/(i+1))
-            self.expected_reward[str(vec[1])][move[0]] += (result/(i+1))
+            self.expected_reward[str(vec[0])][move[1]] = (1-true_alpha)*self.expected_reward[str(vec[0])][move[1]] + true_alpha*result
+            self.expected_reward[str(vec[1])][move[0]] = (1-true_alpha)*self.expected_reward[str(vec[1])][move[0]] + true_alpha*result
             if len(vec)==2:
                 # then I know it's just a row and a column
                 pass
             elif len(vec)==3:
                 # then I know it's a corner
-                self.expected_reward[str(vec[2])][move[1]] += (result/(i+1))
+                self.expected_reward[str(vec[2])][move[1]] = (1-true_alpha)*self.expected_reward[str(vec[2])][move[1]] + true_alpha*result
             else:
-                self.expected_reward[str(vec[2])][move[1]] += (result/(i+1))
-                self.expected_reward[str(vec[3])][move[1]] += (result/(i+1))
-            print(self.expected_reward)
+                self.expected_reward[str(vec[2])][move[1]] = (1-true_alpha)*self.expected_reward[str(vec[2])][move[1]] + true_alpha*result
+                self.expected_reward[str(vec[3])][move[1]] = (1-true_alpha)*self.expected_reward[str(vec[3])][move[1]] + true_alpha*result
         
         pickle.dump(self.expected_reward, open(self.name + '_expected_reward.p', 'wb'))
     

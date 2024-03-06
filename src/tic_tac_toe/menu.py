@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import subprocess
 import os
-import ai
+import src.tic_tac_toe.bots.NaiveAI as NaiveAI
 
 class TicTacToeMenu(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -61,7 +61,8 @@ class TicTacToeMenu(tk.Tk):
         ai_label = tk.Label(single_player_setup_window, text="Choose AI Type:", font=("Arial", 16))
         ai_label.grid(row=1, column=0, padx=10, pady=10)
 
-        from ai import NaiveAI, milesbot
+        from src.tic_tac_toe.bots.NaiveAI import NaiveAI
+        from src.tic_tac_toe.bots.milesbot import milesbot
 
         ai_class_mapping = {
             "NaiveAI": NaiveAI,
@@ -101,7 +102,7 @@ class TicTacToeMenu(tk.Tk):
         ai_setup_window.title("AI Sim Setup")
         ai_setup_window.geometry("600x300")
 
-        from ai import NaiveAI, milesbot
+        from src.tic_tac_toe.bots.NaiveAI import NaiveAI, milesbot
 
         ai_class_mapping = {
             "NaiveAI": NaiveAI,
