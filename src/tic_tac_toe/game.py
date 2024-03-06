@@ -3,6 +3,8 @@ from tkinter import ttk
 from tkinter import messagebox
 import sys
 import sqlite3
+import numpy as np
+import pickle
 
 class TicTacToe:
     def __init__(self, x_status, o_status): # x_status/o_status are either 'human' or 'ai'
@@ -95,8 +97,11 @@ class TicTacToeGUI:
 def main(x_status, o_status, ai_class_name=None):
     ai_class = None
     if ai_class_name is not None:
+        import importlib
+        ai_class = importlib.import_module('matplotlib.text')
         # Import the AI class dynamically
-        ai_class = getattr(__import__('ai'), ai_class_name)
+        print(ai_class_name)
+        ai_class = getattr(__import__(''.join(('bots.',ai_class_name))), ai_class_name)
         # Instantiate the AI class
     root = tk.Tk()
     gui = TicTacToeGUI(root, x_status, o_status, ai_class)
@@ -120,8 +125,9 @@ def ai_sim(ai_class_1, ai_class_2, round_lim):
 
     # Define the maximum value for the progress bar
     progress["maximum"] = round_lim
+    results_X = np.zeros(len(round_lim))
     
-    while(round < round_lim):
+    for round in range(round_lim):
         turn=0
         while(True):
             game.current_player = 'X'
@@ -132,13 +138,15 @@ def ai_sim(ai_class_1, ai_class_2, round_lim):
             else:
                 print('BAD MOVE')
             if game.check_win():
-                record_result(ai_model_1, ai_model_2, ['W','L'], turn)
+                # record_result(ai_model_1, ai_model_2, ['W','L'], turn)
+                results_X[round] = 1
                 ai_model_1_wins+=1
                 ai_model_1.update_reward('W')
                 ai_model_2.update_reward('L')
                 break
             elif game.check_draw():
-                record_result(ai_model_1, ai_model_2, ['D','D'], turn)
+                # record_result(ai_model_1, ai_model_2, ['D','D'], turn)
+                results_X[round] = 0
                 draws+=1
                 ai_model_1.update_reward('D')
                 ai_model_2.update_reward('D')
@@ -152,13 +160,15 @@ def ai_sim(ai_class_1, ai_class_2, round_lim):
             else:
                 print('BAD MOVE')
             if game.check_win():
-                record_result(ai_model_1, ai_model_2, ['L','W'], turn)
+                # record_result(ai_model_1, ai_model_2, ['L','W'], turn)
+                results_X[round] = -1
                 ai_model_2_wins+=1
                 ai_model_1.update_reward('L')
                 ai_model_2.update_reward('W')
                 break
             elif game.check_draw():
-                record_result(ai_model_1, ai_model_2, ['D','D'], turn)
+                # record_result(ai_model_1, ai_model_2, ['D','D'], turn)
+                results_X[round] = 0
                 draws+=1
                 ai_model_1.update_reward('D')
                 ai_model_2.update_reward('D')
@@ -172,6 +182,14 @@ def ai_sim(ai_class_1, ai_class_2, round_lim):
         root.update()  # Process events to update the GUI
 
     root.destroy()  # Close the window when the loop completes
+    
+    import pickle
+    try:
+        old_results = pickle.load(open('results.p','rb')) # expected_reward = pickle.load(open('milesbot_expected_reward.p','rb'))
+    except:
+        print('cant find')
+    
+    pickle.dump(np.concatenate(old_results, results_X), open('results.p', 'wb'))
 
     messagebox.showinfo("Simulation Completed!", f"Final Score:{ai_model_1_wins} - {draws} - {ai_model_2_wins}")
 

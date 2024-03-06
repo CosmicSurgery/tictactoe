@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 import subprocess
 import os
-import src.tic_tac_toe.bots.NaiveAI as NaiveAI
 
 class TicTacToeMenu(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -27,6 +26,11 @@ class TicTacToeMenu(tk.Tk):
 
         # Bind the destroy event to close_window method
         self.protocol("WM_DELETE_WINDOW", self.close_window)
+
+        self.ai_class_list = [
+            "NaiveAI",
+            "milesbot"
+            ]
 
     def close_window(self):
         # Close the window
@@ -61,17 +65,9 @@ class TicTacToeMenu(tk.Tk):
         ai_label = tk.Label(single_player_setup_window, text="Choose AI Type:", font=("Arial", 16))
         ai_label.grid(row=1, column=0, padx=10, pady=10)
 
-        from src.tic_tac_toe.bots.NaiveAI import NaiveAI
-        from src.tic_tac_toe.bots.milesbot import milesbot
-
-        ai_class_mapping = {
-            "NaiveAI": NaiveAI,
-            "milesbot": milesbot
-        }
-
         # Dropdown for AI type selection
         ai_var = tk.StringVar()
-        ai_dropdown = ttk.Combobox(single_player_setup_window, textvariable=ai_var, values=list(ai_class_mapping.keys()), state="readonly", font=("Arial", 14))
+        ai_dropdown = ttk.Combobox(single_player_setup_window, textvariable=ai_var, values=self.ai_class_list, state="readonly", font=("Arial", 14))
         ai_dropdown.current(0)
         ai_dropdown.grid(row=1, column=1, padx=10, pady=10)
 
@@ -102,26 +98,19 @@ class TicTacToeMenu(tk.Tk):
         ai_setup_window.title("AI Sim Setup")
         ai_setup_window.geometry("600x300")
 
-        from src.tic_tac_toe.bots.NaiveAI import NaiveAI, milesbot
-
-        ai_class_mapping = {
-            "NaiveAI": NaiveAI,
-            "milesbot": milesbot
-        }
-
         # Label for AI type selection
         ai_label_1 = tk.Label(ai_setup_window, text="X: Choose AI Type:", font=("Arial", 16))
         ai_label_1.grid(row=0, column=0, padx=10, pady=10)
 
         # Dropdown for AI type selection
         ai_var_1 = tk.StringVar()
-        ai_dropdown_1 = ttk.Combobox(ai_setup_window, textvariable=ai_var_1, values=list(ai_class_mapping.keys()), state="readonly", font=("Arial", 14))
+        ai_dropdown_1 = ttk.Combobox(ai_setup_window, textvariable=ai_var_1, values=self.ai_class_list, state="readonly", font=("Arial", 14))
         ai_dropdown_1.current(0)
         ai_dropdown_1.grid(row=0, column=1, padx=10, pady=10)
 
         # Dropdown for AI type selection
         ai_var_2 = tk.StringVar()
-        ai_dropdown_2 = ttk.Combobox(ai_setup_window, textvariable=ai_var_2, values=list(ai_class_mapping.keys()), state="readonly", font=("Arial", 14))
+        ai_dropdown_2 = ttk.Combobox(ai_setup_window, textvariable=ai_var_2, values=self.ai_class_list, state="readonly", font=("Arial", 14))
         ai_dropdown_2.current(1)
         ai_dropdown_2.grid(row=1, column=1, padx=10, pady=10)
 
