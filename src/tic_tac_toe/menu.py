@@ -29,7 +29,8 @@ class TicTacToeMenu(tk.Tk):
 
         self.ai_class_list = [
             "NaiveAI",
-            "milesbot"
+            "milesbot",
+            "milesbot2"
             ]
 
     def close_window(self):
@@ -132,7 +133,7 @@ class TicTacToeMenu(tk.Tk):
             o_status = "ai"
 
             # Run game.py using subprocess with additional arguments
-            subprocess.run(["python", game_script, x_status, o_status, ai_model_1, ai_model_2, '20'])
+            subprocess.run(["python", game_script, x_status, o_status, ai_model_1, ai_model_2, '1000'])
             ai_setup_window.destroy()
 
         # Button to start the game

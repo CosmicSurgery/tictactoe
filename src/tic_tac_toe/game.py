@@ -5,6 +5,8 @@ import sys
 import sqlite3
 import numpy as np
 import pickle
+import importlib
+import importlib.util
 
 class TicTacToe:
     def __init__(self, x_status, o_status): # x_status/o_status are either 'human' or 'ai'
@@ -39,10 +41,16 @@ class TicTacToeGUI:
         self.create_board_buttons()
         self.current_player_label = tk.Label(master, text=f"Current Player: {self.game.current_player}", font=("Arial", 12))
         self.current_player_label.grid(row=3, column=0, columnspan=3)
+
+        if ai_class is not None:
+            ai_module_spec = importlib.util.spec_from_file_location(ai_class, f"./bots/{ai_class}.py")
+            ai_module = importlib.util.module_from_spec(ai_module_spec)
+            ai_module_spec.loader.exec_module(ai_module)
+
         if self.game.player_status['O'] == 'ai':
-            self.ai_model = ai_class('O')
+            self.ai_model = getattr(ai_module, ai_class)('O')
         elif self.game.player_status['X'] == 'ai':
-            self.ai_model = ai_class('X')
+            self.ai_model = getattr(ai_module, ai_class)('X')
             (row, col) = self.ai_model.get_move(self.game.board)
             self.move_validation(row,col,'ai')
         else:
@@ -95,21 +103,23 @@ class TicTacToeGUI:
             self.move_validation(row,col,'ai')
 
 def main(x_status, o_status, ai_class_name=None):
-    ai_class = None
-    if ai_class_name is not None:
-        import importlib
-        ai_class = importlib.import_module('matplotlib.text')
-        # Import the AI class dynamically
-        print(ai_class_name)
-        ai_class = getattr(__import__(''.join(('bots.',ai_class_name))), ai_class_name)
-        # Instantiate the AI class
     root = tk.Tk()
-    gui = TicTacToeGUI(root, x_status, o_status, ai_class)
+    gui = TicTacToeGUI(root, x_status, o_status, ai_class_name)
     root.mainloop()
 
 def ai_sim(ai_class_1, ai_class_2, round_lim):
-    ai_class_1, ai_class_2 = getattr(__import__('ai'), ai_class_1), getattr(__import__('ai'), ai_class_2)
-    ai_model_1, ai_model_2 = ai_class_1('X'), ai_class_2('O')
+    # ai_class_1, ai_class_2 = getattr(__import__('ai'), ai_class_1), getattr(__import__('ai'), ai_class_2)
+    ai_module_spec = importlib.util.spec_from_file_location(ai_class_1, f"./bots/{ai_class_1}.py")
+    ai_module = importlib.util.module_from_spec(ai_module_spec)
+    ai_module_spec.loader.exec_module(ai_module)
+    ai_model_1 = getattr(ai_module, ai_class_1)('X')
+
+    ai_module_spec = importlib.util.spec_from_file_location(ai_class_2, f"./bots/{ai_class_2}.py")
+    ai_module = importlib.util.module_from_spec(ai_module_spec)
+    ai_module_spec.loader.exec_module(ai_module)
+    ai_model_2 = getattr(ai_module, ai_class_2)('O')
+
+    # ai_model_1, ai_model_2 = ai_class_1('X'), ai_class_2('O')
     ai_model_1_wins=0
     ai_model_2_wins=0
     draws = 0
@@ -125,7 +135,7 @@ def ai_sim(ai_class_1, ai_class_2, round_lim):
 
     # Define the maximum value for the progress bar
     progress["maximum"] = round_lim
-    results_X = np.zeros(len(round_lim))
+    results_X = np.zeros(round_lim)
     
     for round in range(round_lim):
         turn=0
@@ -185,13 +195,26 @@ def ai_sim(ai_class_1, ai_class_2, round_lim):
     
     import pickle
     try:
-        old_results = pickle.load(open('results.p','rb')) # expected_reward = pickle.load(open('milesbot_expected_reward.p','rb'))
-    except:
-        print('cant find')
-    
-    pickle.dump(np.concatenate(old_results, results_X), open('results.p', 'wb'))
+        old_results = pickle.load(open(ai_model_1.name + 'results.p','rb')) # expected_reward = pickle.load(open('milesbot_expected_reward.p','rb'))
+        results_X = np.concatenate((old_results, results_X))
+    except Exception as error:
+        print('cant find: ', error)
+        
+    pickle.dump(results_X, open(ai_model_1.name + 'results.p', 'wb'))
 
     messagebox.showinfo("Simulation Completed!", f"Final Score:{ai_model_1_wins} - {draws} - {ai_model_2_wins}")
+
+    disp=True
+    if disp:
+        disp_results(results_X)
+
+def disp_results(results_X):
+    import matplotlib.pyplot as plt
+    cumulative_win_percentage = lambda arr: np.cumsum(arr == 1) / np.arange(1, len(arr) + 1)
+    win_percentage = cumulative_win_percentage(results_X)
+    plt.figure()
+    plt.plot(win_percentage)
+    plt.show()
 
 def record_result(ai_model_1, ai_model_2, result, turns): # need to add in if they were 'X' or 'O'
     db_path_1 = f"results/{ai_model_1.name}.db"

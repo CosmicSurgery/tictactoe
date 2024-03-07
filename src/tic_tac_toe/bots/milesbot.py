@@ -11,6 +11,7 @@ class milesbot:
         self.name = 'milesbot'
         self.GAMMA = 100
         self.alpha = 0.1
+        self.games_played = 0
         self.expected_reward = {}
         self.player = player
         self.states = []
@@ -41,6 +42,8 @@ class milesbot:
             move = empty_cells[np.argmax(cell_values)]
         else:
             move = None  # No valid moves available (board is full or already won)
+
+        self.games_played+=1
         self.boards.append(copy.deepcopy(board))
         self.moves.append(move)
 

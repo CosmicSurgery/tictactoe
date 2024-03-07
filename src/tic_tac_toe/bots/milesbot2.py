@@ -6,10 +6,12 @@ import copy
 
 
 
-class milesbot:
+class milesbot2:
     def __init__(self, player):
         self.name = 'milesbot2'
-        self.GAMMA = 100
+        self.epsilon = 0.005
+        self.games_played = 0
+        self.max_games = 1000
         self.alpha = 0.1
         self.expected_reward = {}
         self.player = player
@@ -18,8 +20,12 @@ class milesbot:
         self.boards = []
         try:
             self.expected_reward = pickle.load(open(self.name + '_expected_reward.p','rb')) # expected_reward = pickle.load(open('milesbot_expected_reward.p','rb'))
-        except:
-            print('cant find')
+        except Exception as error:
+            print('cant find: ', error)
+        try:
+            self.games_played = pickle.load(open(self.name + '_games_played.p','rb'))
+        except Exception as error:
+            print('new bot: ', error)
 
     def get_move(self, board):
         # Generate a random move
@@ -28,6 +34,8 @@ class milesbot:
         
         if empty_cells:
             cell_values = np.zeros(len(empty_cells))
+            if random.uniform(0,1) < np.e**(-self.epsilon*self.games_played) and self.games_played < self.max_games:
+                return random.choice(empty_cells)
             for i,cell in enumerate(empty_cells):
                 for j, state in enumerate(self.get_state(*cell, board)):
                     try:
@@ -70,8 +78,10 @@ class milesbot:
             else:
                 self.expected_reward[str(vec[2])][move[1]] = (1-true_alpha)*self.expected_reward[str(vec[2])][move[1]] + true_alpha*result
                 self.expected_reward[str(vec[3])][move[1]] = (1-true_alpha)*self.expected_reward[str(vec[3])][move[1]] + true_alpha*result
-        
+
+        self.games_played +=1
         pickle.dump(self.expected_reward, open(self.name + '_expected_reward.p', 'wb'))
+        pickle.dump(self.games_played, open(self.name + '_games_played.p', 'wb'))
     
     def get_state(self, row, col, board):
         # Get row
