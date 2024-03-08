@@ -30,7 +30,8 @@ class TicTacToeMenu(tk.Tk):
         self.ai_class_list = [
             "NaiveAI",
             "milesbot",
-            "milesbot2"
+            "milesbot2",
+            'minimax'
             ]
 
     def close_window(self):
