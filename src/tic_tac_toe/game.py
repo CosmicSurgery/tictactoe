@@ -109,12 +109,12 @@ def main(x_status, o_status, ai_class_name=None):
 
 def ai_sim(ai_class_1, ai_class_2, round_lim):
     # ai_class_1, ai_class_2 = getattr(__import__('ai'), ai_class_1), getattr(__import__('ai'), ai_class_2)
-    ai_module_spec = importlib.util.spec_from_file_location(ai_class_1, f"./bots/{ai_class_1}.py")
+    ai_module_spec = importlib.util.spec_from_file_location(ai_class_1, f"C:\\Users\\miles\\Projects\\tictactoe\\src\\tic_tac_toe\\bots\\{ai_class_1}.py")
     ai_module = importlib.util.module_from_spec(ai_module_spec)
     ai_module_spec.loader.exec_module(ai_module)
     ai_model_1 = getattr(ai_module, ai_class_1)('X')
 
-    ai_module_spec = importlib.util.spec_from_file_location(ai_class_2, f"./bots/{ai_class_2}.py")
+    ai_module_spec = importlib.util.spec_from_file_location(ai_class_2, f"C:\\Users\\miles\\Projects\\tictactoe\\src\\tic_tac_toe\\bots\\{ai_class_2}.py")
     ai_module = importlib.util.module_from_spec(ai_module_spec)
     ai_module_spec.loader.exec_module(ai_module)
     ai_model_2 = getattr(ai_module, ai_class_2)('O')
@@ -194,13 +194,15 @@ def ai_sim(ai_class_1, ai_class_2, round_lim):
     root.destroy()  # Close the window when the loop completes
     
     import pickle
+    filepath = 'C:\\Users\\miles\\Projects\\tictactoe\\src\\tic_tac_toe\\results\\'
+    filename = ai_model_1.name + '_vs_' + ai_model_2.name + 'results.p'
     try:
-        old_results = pickle.load(open(ai_model_1.name + 'results.p','rb')) # expected_reward = pickle.load(open('milesbot_expected_reward.p','rb'))
+        old_results = pickle.load(open(filepath+filename, 'wb')) # expected_reward = pickle.load(open('milesbot_expected_reward.p','rb'))
         results_X = np.concatenate((old_results, results_X))
     except Exception as error:
         print('cant find: ', error)
         
-    pickle.dump(results_X, open(ai_model_1.name + 'results.p', 'wb'))
+    pickle.dump(results_X, open(filepath+filename, 'wb'))
 
     messagebox.showinfo("Simulation Completed!", f"Final Score:{ai_model_1_wins} - {draws} - {ai_model_2_wins}")
 

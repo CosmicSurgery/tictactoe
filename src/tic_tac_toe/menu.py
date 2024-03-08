@@ -134,7 +134,7 @@ class TicTacToeMenu(tk.Tk):
             o_status = "ai"
 
             # Run game.py using subprocess with additional arguments
-            subprocess.run(["python", game_script, x_status, o_status, ai_model_1, ai_model_2, '1000'])
+            subprocess.run(["python", game_script, x_status, o_status, ai_model_1, ai_model_2, '30'])
             ai_setup_window.destroy()
 
         # Button to start the game
@@ -142,7 +142,44 @@ class TicTacToeMenu(tk.Tk):
         play_button.grid(row=2, columnspan=2, pady=20)
 
     def start_stats(self):
-        pass
+        import os 
+        filepath = "C:\\Users\\miles\\Projects\\tictactoe\\src\\tic_tac_toe\\results"
+        stats = os.listdir(filepath)
+
+        stats_setup_window = tk.Toplevel(self)
+        stats_setup_window.title("Single Player Setup")
+        stats_setup_window.geometry("600x300")
+        if len(stats) == 0:
+            stats_label = tk.Label(stats_setup_window, text="Nothing to see here :(", font=("Arial", 16))
+        else:
+            stats_label = tk.Label(stats_setup_window, text="What stats do you want to see?", font=("Arial", 16))
+            stats_label.grid(row=1, column=0, padx=10, pady=10)
+
+            stats_var = tk.StringVar()
+            stats_dropdown = ttk.Combobox(stats_setup_window, textvariable=stats_var, values=stats, state="readonly", font=("Arial", 14))
+            stats_dropdown.current(0)
+            stats_dropdown.grid(row=1, column=1, padx=10, pady=10)
+        stats_label.grid(row=1, column=0, padx=10, pady=10)
+
+        def show_stats():
+            stats = stats_var.get()
+
+
+            import matplotlib.pyplot as plt
+            import numpy as np
+            import pickle
+            results_X = pickle.load(open('\\'.join((filepath,stats)), 'rb'))
+            cumulative_win_percentage = lambda arr: np.cumsum(arr == 1) / np.arange(1, len(arr) + 1)
+            win_percentage = cumulative_win_percentage(results_X)
+            plt.figure()
+            plt.plot(win_percentage)
+            plt.show()
+
+
+        # Button to show stats
+        play_button = tk.Button(stats_setup_window, text="View Stats", command=show_stats, width=20, height=3, font=("Arial", 16))
+        play_button.grid(row=2, columnspan=2, pady=20)
+
 
 if __name__ == "__main__":
     app = TicTacToeMenu()

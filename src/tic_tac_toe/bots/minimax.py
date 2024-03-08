@@ -45,4 +45,5 @@ class minimax:
         lines = board + list(zip(*board)) + [(board[0][0], board[1][1], board[2][2]), (board[0][2], board[1][1], board[2][0])]
         return any(all(cell == line[0] and cell != 0 for cell in line) for line in lines)
 
-        
+    def update_reward(self, player):
+        pass
