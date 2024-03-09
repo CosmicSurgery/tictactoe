@@ -31,7 +31,8 @@ class TicTacToeMenu(tk.Tk):
             "NaiveAI",
             "milesbot",
             "milesbot2",
-            'minimax'
+            'minimax',
+            'tab_q'
             ]
 
     def close_window(self):
