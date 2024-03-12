@@ -136,12 +136,13 @@ def ai_sim(ai_class_1, ai_class_2, round_lim):
     # Define the maximum value for the progress bar
     progress["maximum"] = round_lim
     results_X = np.zeros(round_lim)
-    
+
     for round in range(round_lim):
         turn=0
         while(True):
             game.current_player = 'X'
             move = ai_model_1.get_move(game.board)
+            print(move)
             if(move is not None):
                 game.make_move(*move)
                 turn+=1

@@ -3,6 +3,7 @@ import pickle
 import os
 import numpy as np
 import copy
+from time import sleep
 
 
 
@@ -36,23 +37,23 @@ class tab_q:
         if state in list(self.expected_reward.keys()):
             q = self.expected_reward[state]
         else:
-            q = [0 for k in range(9)]
+            q = [0.0 for k in range(len(empty_cells))]
         
         if empty_cells:
             if random.uniform(0,1) < np.e**(-self.epsilon*self.games_played) and self.games_played < self.max_games:
-                return random.choice(empty_cells)
-            
-            move = empty_cells[np.argmax(q)]
+                move =  random.choice(empty_cells)
+            else:
+                move = empty_cells[np.argmax(q)]
         else:
             move = None  # No valid moves available (board is full or already won)
         self.expected_reward[state] = q
+        print(board)
         self.boards.append(copy.deepcopy(board))
         self.moves.append(move)
-
         return move
 
     def q_state(self, board):
-        new_board = np.array(board)
+        new_board = copy.deepcopy(board)
         new_board[new_board == self.player] = '1'
         new_board[(new_board != '1') & (new_board != '0')] = '2'
         return str([list(k) for k in new_board])
@@ -71,10 +72,13 @@ class tab_q:
         discounted_result = result
         for i, board in enumerate(self.boards):
             state = self.q_state(board)
-            q = np.array(self.expected_reward[state]).reshape(3,3)
+            q = np.array(self.expected_reward[state],dtype=float).reshape(3,3)
             q[self.moves[i][0],self.moves[i][1]] = (1-self.alpha)*q[self.moves[i][0],self.moves[i][1]] + self.alpha*discounted_result
             self.expected_reward[state] = list(q.flatten())
-    
+            discounted_result = result/(i+1)
+            # print((1-self.alpha)*q[self.moves[i][0],self.moves[i][1]] + self.alpha*discounted_result)
+            # print(q[self.moves[i][0],self.moves[i][1]])
+
         self.games_played +=1
         pickle.dump(self.expected_reward, open(self.name + '_expected_reward.p', 'wb'))
         pickle.dump(self.games_played, open(self.name + '_games_played.p', 'wb'))

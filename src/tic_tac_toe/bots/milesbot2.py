@@ -35,18 +35,19 @@ class milesbot2:
         if empty_cells:
             cell_values = np.zeros(len(empty_cells))
             if random.uniform(0,1) < np.e**(-self.epsilon*self.games_played) and self.games_played < self.max_games:
-                return random.choice(empty_cells)
-            for i,cell in enumerate(empty_cells):
-                for j, state in enumerate(self.get_state(*cell, board)):
-                    try:
-                        if j == 1:
-                            cell_values[i] += self.expected_reward[str(state)][cell[0]]
-                        else:
-                            cell_values[i] += self.expected_reward[str(state)][cell[1]]
-                    except:
-                        self.expected_reward[str(state)] = [0,0,0]
-            
-            move = empty_cells[np.argmax(cell_values)]
+                move =  random.choice(empty_cells)
+            else:
+                for i,cell in enumerate(empty_cells):
+                    for j, state in enumerate(self.get_state(*cell, board)):
+                        try:
+                            if j == 1:
+                                cell_values[i] += self.expected_reward[str(state)][cell[0]]
+                            else:
+                                cell_values[i] += self.expected_reward[str(state)][cell[1]]
+                        except:
+                            self.expected_reward[str(state)] = [0,0,0]
+                
+                move = empty_cells[np.argmax(cell_values)]
         else:
             move = None  # No valid moves available (board is full or already won)
         self.boards.append(copy.deepcopy(board))
