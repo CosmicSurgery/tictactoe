@@ -73,10 +73,6 @@ class tab_q:
         discounted_result = result
 
         for i, board in enumerate(self.boards):
-            # we should first iterate through the board, for each move that the agent does, it calculates all of the enemy agents possible moves, and therefore all of the possible 
-            # next states that could appear. we make a list of all of the q-values of each opponent move and that is the expected reward of 
-
-
             empty_cells = [(row, col) for row in range(3) for col in range(3) if board[row][col] == 0]
             state = self.q_state(board)
             q = np.array(self.expected_reward[state])
