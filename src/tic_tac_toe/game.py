@@ -197,7 +197,7 @@ def ai_sim(ai_class_1, ai_class_2, round_lim):
     filepath = 'C:\\Users\\miles\\Projects\\tictactoe\\src\\tic_tac_toe\\results\\'
     filename = ai_model_1.name + '_vs_' + ai_model_2.name + 'results.p'
     try:
-        old_results = pickle.load(open(filepath+filename, 'wb')) # expected_reward = pickle.load(open('milesbot_expected_reward.p','rb'))
+        old_results = pickle.load(open(filepath+filename, 'rb')) # expected_reward = pickle.load(open('milesbot_expected_reward.p','rb'))
         results_X = np.concatenate((old_results, results_X))
     except Exception as error:
         print('cant find: ', error)

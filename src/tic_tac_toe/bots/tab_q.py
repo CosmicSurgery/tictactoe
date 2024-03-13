@@ -103,7 +103,7 @@ class tab_q:
                 board[self.moves[i][0]][self.moves[i][1]] = 0
                 worst_case = -1 * max(worst_case)
                 q[np.where([k == self.moves[i] for k in empty_cells])[0][0]] = (1-self.alpha)*q[np.where([k == self.moves[i] for k in empty_cells])[0][0]] + self.alpha*(worst_case*self.gamma)
-                self.expected_reward[state] = list(q.flatten())
+            self.expected_reward[state] = list(q.flatten())
             # print((1-self.alpha)*q[self.moves[i][0],self.moves[i][1]] + self.alpha*discounted_result)
             # print(q[self.moves[i][0],self.moves[i][1]])
 
