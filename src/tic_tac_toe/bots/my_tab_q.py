@@ -30,33 +30,11 @@ class tab_q:
         except Exception as error:
             print('new bot: ', error)
 
-    def update_q(self, board, moves):
-        for move in moves:
-            board[move[0],move[1]] = self.player
-            empty_cells = [(row, col) for row in range(3) for col in range(3) if board[row][col] == 0]
-            # opponent makes all possible moves, concatenate all possible states after the opponent makes a move
-            for cell in empty_cells:
-                board[cell[0],cell[1]] = 'H' # could be any placeholder as long as it isn't self.player or 0
-
-            
-
-
-
     def get_move(self, board):
         # Generate a random move
         empty_cells = [(row, col) for row in range(3) for col in range(3) if board[row][col] == 0]
         state = self.q_state(board)
-        if empty_cells:
-            if state in list(self.expected_reward.keys()):
-                q = self.expected_reward[state]
-            else:
-                q = [0.0 for k in range(len(empty_cells))]
 
-            
-            if random.uniform(0,1) < np.e**(-self.epsilon*self.games_played) and self.games_played < self.max_games:
-                move =  random.choice(empty_cells)
-            else:
-                move = empty_cells[np.argmax(q)]
         
         if empty_cells:
             if state in list(self.expected_reward.keys()):
@@ -95,6 +73,10 @@ class tab_q:
         discounted_result = result
 
         for i, board in enumerate(self.boards):
+            # we should first iterate through the board, for each move that the agent does, it calculates all of the enemy agents possible moves, and therefore all of the possible 
+            # next states that could appear. we make a list of all of the q-values of each opponent move and that is the expected reward of 
+
+
             empty_cells = [(row, col) for row in range(3) for col in range(3) if board[row][col] == 0]
             state = self.q_state(board)
             q = np.array(self.expected_reward[state])
@@ -108,6 +90,3 @@ class tab_q:
         pickle.dump(self.expected_reward, open(self.name + '_expected_reward.p', 'wb'))
         pickle.dump(self.games_played, open(self.name + '_games_played.p', 'wb'))
     
-    def check_win(self, board):
-        lines = board + list(zip(*board)) + [(board[0][0], board[1][1], board[2][2]), (board[0][2], board[1][1], board[2][0])]
-        return any(all(cell == line[0] and cell != 0 for cell in line) for line in lines)

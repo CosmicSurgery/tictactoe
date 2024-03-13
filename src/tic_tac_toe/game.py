@@ -142,7 +142,6 @@ def ai_sim(ai_class_1, ai_class_2, round_lim):
         while(True):
             game.current_player = 'X'
             move = ai_model_1.get_move(game.board)
-            print(move)
             if(move is not None):
                 game.make_move(*move)
                 turn+=1
