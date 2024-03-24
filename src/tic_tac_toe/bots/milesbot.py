@@ -43,7 +43,6 @@ class milesbot:
         else:
             move = None  # No valid moves available (board is full or already won)
 
-        self.games_played+=1
         self.boards.append(copy.deepcopy(board))
         self.moves.append(move)
 

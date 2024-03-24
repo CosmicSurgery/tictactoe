@@ -148,7 +148,7 @@ class TicTacToeMenu(tk.Tk):
         stats = os.listdir(filepath)
 
         stats_setup_window = tk.Toplevel(self)
-        stats_setup_window.title("Single Player Setup")
+        stats_setup_window.title("Stats")
         stats_setup_window.geometry("600x300")
         if len(stats) == 0:
             stats_label = tk.Label(stats_setup_window, text="Nothing to see here :(", font=("Arial", 16))
@@ -171,7 +171,14 @@ class TicTacToeMenu(tk.Tk):
             import pickle
             results_X = pickle.load(open('\\'.join((filepath,stats)), 'rb'))
             cumulative_win_percentage = lambda arr: np.cumsum(arr == 1) / np.arange(1, len(arr) + 1)
-            win_percentage = cumulative_win_percentage(results_X)
+
+            def rolling_av(a, n=100):
+                ret = np.cumsum(a == 1, dtype=float)
+                ret[n:] = ret[n:] - ret[:-n]
+                return ret[n - 1:] / n
+
+            win_percentage = rolling_av(results_X)
+            # win_percentage = cumulative_win_percentage(results_X)
             plt.figure()
             plt.plot(win_percentage)
             plt.show()

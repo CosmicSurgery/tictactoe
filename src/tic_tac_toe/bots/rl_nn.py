@@ -9,9 +9,13 @@ class rl_nn:
     def __init__(self, player):
         self.name = 'rl_nn'
         self.player = player
-        self.dl1 = nn.Linear(18, 36)
-        self.dl2 = nn.Linear(36, 36)
-        self.output_layer = nn.Linear(36, 9)
+        self.stack = nn.Sequential(
+            nn.Linear(18, 36),
+            nn.ReLu(),
+            nn.Linear(36,36),
+            nn.ReLu(),
+            nn.Linear(36,9)
+        )
 
         try:
             self.weights = pickle.load(open(self.name + '_weights.p','rb')) # expected_reward = pickle.load(open('milesbot_expected_reward.p','rb'))
@@ -29,7 +33,8 @@ class rl_nn:
         
         return nn_input
 
-    
+    def backpropogate(self):
+        
 
     def get_move(self, board):
         pass
