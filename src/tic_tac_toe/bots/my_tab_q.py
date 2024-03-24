@@ -9,7 +9,7 @@ from time import sleep
 
 class tab_q:
     def __init__(self, player):
-        self.name = 'tab_q'
+        self.name = 'my_tab_q'
         self.epsilon = 0.005
         self.games_played = 0
         self.max_games = 1000
